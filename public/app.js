@@ -235,11 +235,11 @@ async function fetchDevices() {
                 pendingCount++;
                 tr.innerHTML = `
                     <td><strong>${dev.clinic_name || 'غير معروف'}</strong></td>
-                    <td class="code-font">${dev.hardware_id}</td>
+                    <td class="code-font">${dev.device_fingerprint}</td>
                     <td>${new Date(dev.created_at).toLocaleString('ar-SA')}</td>
                     <td>
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-small btn-success btn-glow" onclick="approveDevice('${dev.hardware_id}', '${dev.clinic_name}')">
+                            <button class="btn btn-small btn-success btn-glow" onclick="approveDevice('${dev.id}', '${dev.clinic_name}')">
                                 <i class="ph ph-check"></i> موافقة
                             </button>
                             <button class="btn btn-small btn-outline text-danger">
@@ -253,7 +253,7 @@ async function fetchDevices() {
                 approvedCount++;
                 tr.innerHTML = `
                     <td><strong>${dev.clinic_name || 'غير معروف'}</strong></td>
-                    <td class="code-font">${dev.hardware_id}</td>
+                    <td class="code-font">${dev.device_fingerprint}</td>
                     <td>${new Date(dev.updated_at || dev.created_at).toLocaleString('ar-SA')}</td>
                 `;
                 approvedTbody.appendChild(tr);
@@ -272,13 +272,13 @@ async function fetchDevices() {
     }
 }
 
-async function approveDevice(hardwareId, clinicName) {
+async function approveDevice(deviceId, clinicName) {
     if(!confirm(`هل أنت متأكد من الموافقة على جهاز العيادة: ${clinicName}؟`)) return;
     
     try {
         const res = await apiCall('/approve', {
             method: 'POST',
-            body: JSON.stringify({ hardwareId, clinicName })
+            body: JSON.stringify({ device_id: deviceId })
         });
         
         if (res.ok) {
@@ -353,7 +353,7 @@ document.getElementById('create-license-form').addEventListener('submit', async 
 
         const res = await apiCall('/licenses', {
             method: 'POST',
-            body: JSON.stringify({ clinicName, allowedDevices, monthsValid })
+            body: JSON.stringify({ clinic_name: clinicName, allowed_devices: allowedDevices, expiry_months: monthsValid })
         });
         
         if (res.ok) {

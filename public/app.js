@@ -276,7 +276,7 @@ async function approveDevice(hardwareId, clinicName) {
     if(!confirm(`هل أنت متأكد من الموافقة على جهاز العيادة: ${clinicName}؟`)) return;
     
     try {
-        const res = await apiCall('/approve-device', {
+        const res = await apiCall('/approve', {
             method: 'POST',
             body: JSON.stringify({ hardwareId, clinicName })
         });
@@ -351,7 +351,7 @@ document.getElementById('create-license-form').addEventListener('submit', async 
         btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> جاري التوليد...';
         btn.disabled = true;
 
-        const res = await apiCall('/generate-license', {
+        const res = await apiCall('/licenses', {
             method: 'POST',
             body: JSON.stringify({ clinicName, allowedDevices, monthsValid })
         });

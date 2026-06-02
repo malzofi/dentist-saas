@@ -166,6 +166,92 @@ exports.approveDevice = async (req, res) => {
     }
 };
 
+// --- New Admin Dashboard Routes ---
+
+// 1. Admin Login
+exports.login = async (req, res) => {
+    const { password } = req.body;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Dentist2026';
+    
+    if (password === ADMIN_PASSWORD) {
+        // Create a simple token for the dashboard session
+        const token = jwt.sign({ role: 'admin' }, process.env.SUPABASE_KEY || 'secret', { expiresIn: '24h' });
+        return res.json({ success: true, token });
+    }
+    return res.status(401).json({ success: false, error: 'كلمة المرور غير صحيحة' });
+};
+
+// 2. Middleware to verify admin token
+exports.verifyAdmin = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(403).json({ error: 'No token provided' });
+    
+    try {
+        jwt.verify(token, process.env.SUPABASE_KEY || 'secret');
+        next();
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+// 3. Get all licenses
+exports.getLicenses = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('licenses')
+            .select('*')
+            .order('created_at', { ascending: false });
+            
+        if (error) return res.status(500).json({ error: 'DB_ERROR' });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
+// 4. Create new license automatically
+exports.createLicense = async (req, res) => {
+    const { clinic_name, allowed_devices, expiry_months } = req.body;
+    
+    if (!clinic_name || !allowed_devices || !expiry_months) {
+        return res.status(400).json({ error: 'MISSING_DATA' });
+    }
+    
+    try {
+        // Generate a random, secure license key
+        const generateKey = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let key = '';
+            for (let i = 0; i < 16; i++) {
+                if (i > 0 && i % 4 === 0) key += '-';
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return key; // e.g., ABCD-1234-EFGH-5678
+        };
+        
+        const license_key = generateKey();
+        
+        // Calculate expiry date
+        const expiry_date = new Date();
+        expiry_date.setMonth(expiry_date.getMonth() + parseInt(expiry_months));
+        
+        const { data, error } = await supabase
+            .from('licenses')
+            .insert([{
+                clinic_name,
+                license_key,
+                allowed_devices: parseInt(allowed_devices),
+                expiry_date: expiry_date.toISOString()
+            }])
+            .select();
+            
+        if (error) return res.status(500).json({ error: 'DB_ERROR', details: error });
+        res.json({ success: true, license: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
 // Helper function to create RSA-signed JWT
 function generateLicenseBlob(license, device_fingerprint) {
     const payload = {

@@ -14,8 +14,20 @@ app.post('/api/cloud/activate-request', cloudController.activateRequest);
 app.post('/api/cloud/sync', cloudController.syncDevice);
 
 // SuperAdmin endpoints
-app.get('/api/cloud/admin/devices', cloudController.getDevices);
-app.post('/api/cloud/admin/approve', cloudController.approveDevice);
+// Admin Dashboard Routes
+app.post('/api/cloud/admin/login', cloudController.login);
+// Protect these routes with verifyAdmin middleware
+app.get('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.getLicenses);
+app.post('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.createLicense);
+app.get('/api/cloud/admin/devices', cloudController.verifyAdmin, cloudController.getDevices);
+app.post('/api/cloud/admin/approve', cloudController.verifyAdmin, cloudController.approveDevice);
+
+// Serve Static Frontend (Dashboard)
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // For local testing
 if (process.env.NODE_ENV !== 'production') {

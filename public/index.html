@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Manager | لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="glass-card login-card">
+            <div class="logo-container">
+                <div class="logo-icon">☁️</div>
+                <h1>SaaS Manager</h1>
+            </div>
+            <p class="subtitle">بوابة الإدارة المركزية (Super Admin)</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="password" required placeholder="أدخل كلمة المرور الخاصة بك">
+                </div>
+                <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
+                <div id="login-error" class="error-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+        <nav class="glass-nav">
+            <div class="nav-brand">SaaS Manager <span>Pro</span></div>
+            <button id="logout-btn" class="btn btn-outline">تسجيل الخروج</button>
+        </nav>
+
+        <main class="dashboard-grid">
+            <!-- Header Actions -->
+            <div class="glass-card header-card">
+                <div>
+                    <h2>إدارة التراخيص والعيادات</h2>
+                    <p>قم بإنشاء تراخيص جديدة للعيادات بنقرة واحدة</p>
+                </div>
+                <button class="btn btn-primary" onclick="openLicenseModal()">+ إصدار رخصة جديدة</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-container">
+                <div class="glass-card stat-card">
+                    <h3>الرخص النشطة</h3>
+                    <div class="stat-value" id="total-licenses">0</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>الأجهزة المرتبطة</h3>
+                    <div class="stat-value" id="total-devices">0</div>
+                </div>
+                <div class="glass-card stat-card warning">
+                    <h3>بانتظار الموافقة</h3>
+                    <div class="stat-value" id="pending-devices">0</div>
+                </div>
+            </div>
+
+            <!-- Lists Area -->
+            <div class="lists-container">
+                <!-- Pending Devices -->
+                <div class="glass-card list-card">
+                    <div class="card-header">
+                        <h3>الأجهزة بانتظار الموافقة ⚠️</h3>
+                        <button class="btn btn-small" onclick="fetchDevices()">تحديث</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="pending-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم العيادة</th>
+                                    <th>بصمة الجهاز</th>
+                                    <th>تاريخ الطلب</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Licenses -->
+                <div class="glass-card list-card mt-4">
+                    <div class="card-header">
+                        <h3>سجل التراخيص (Licenses)</h3>
+                        <button class="btn btn-small" onclick="fetchLicenses()">تحديث</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="licenses-table">
+                            <thead>
+                                <tr>
+                                    <th>العيادة</th>
+                                    <th>مفتاح الرخصة</th>
+                                    <th>الأجهزة المسموحة</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Generate License Modal -->
+    <div id="license-modal" class="modal">
+        <div class="glass-card modal-content">
+            <h3>إصدار رخصة جديدة</h3>
+            <form id="create-license-form">
+                <div class="input-group">
+                    <label>اسم العيادة / الطبيب</label>
+                    <input type="text" id="clinic-name" required placeholder="مثال: عيادة الأمل لطب الأسنان">
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label>عدد الأجهزة المسموحة</label>
+                        <input type="number" id="allowed-devices" min="1" value="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label>مدة الرخصة (بالأشهر)</label>
+                        <select id="expiry-months" required>
+                            <option value="1">شهر واحد (تجربة)</option>
+                            <option value="6">6 أشهر</option>
+                            <option value="12" selected>سنة كاملة</option>
+                            <option value="24">سنتين</option>
+                            <option value="120">10 سنوات (مدى الحياة)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeLicenseModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">توليد وحفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

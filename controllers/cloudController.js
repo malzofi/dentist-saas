@@ -257,6 +257,13 @@ exports.deleteLicense = async (req, res) => {
     const { id } = req.params;
     
     try {
+        // First explicitly delete all devices for this license to bypass missing ON DELETE CASCADE
+        await supabase
+            .from('devices')
+            .delete()
+            .eq('license_id', id);
+
+        // Then delete the license itself
         const { error } = await supabase
             .from('licenses')
             .delete()

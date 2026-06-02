@@ -80,7 +80,7 @@ exports.activateRequest = async (req, res) => {
                 const blob = generateLicenseBlob(license, device_fingerprint);
                 return res.json({ status: 'active', blob });
             } else {
-                return res.json({ status: 'pending', message: 'جهازك قيد المراجعة والموافقة من الإدارة.' });
+                return res.json({ status: 'pending_approval', message: 'جهازك قيد المراجعة والموافقة من الإدارة.' });
             }
         }
 
@@ -88,16 +88,14 @@ exports.activateRequest = async (req, res) => {
             return res.status(403).json({ error: 'DEVICE_LIMIT_REACHED', message: 'وصلت العيادة للحد الأقصى للأجهزة.' });
         }
 
-        // 3. Register new device as active directly (Auto-Approve)
-        // Use upsert to handle if device_fingerprint already exists for an older license
+        // 3. Register new device as pending (Requires Admin Approval)
         const { error: insertError } = await supabase
             .from('devices')
-            .upsert([{ license_id: license.id, device_fingerprint, status: 'active' }], { onConflict: 'device_fingerprint' });
+            .upsert([{ license_id: license.id, device_fingerprint, status: 'pending_approval' }], { onConflict: 'device_fingerprint' });
 
         if (insertError) return res.status(500).json({ error: 'DB_ERROR' });
         
-        const blob = generateLicenseBlob(license, device_fingerprint);
-        return res.json({ status: 'active', blob, message: 'تم التفعيل بنجاح (موافقة تلقائية).' });
+        return res.json({ status: 'pending_approval', message: 'تم إرسال طلب التفعيل إلى الإدارة. يرجى الانتظار حتى تتم الموافقة.' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'SERVER_ERROR' });
@@ -110,7 +108,7 @@ exports.syncDevice = async (req, res) => {
     try {
         const { data: rows, error } = await supabase
             .from('devices')
-            .select('status')
+            .select('*, licenses(*)')
             .eq('device_fingerprint', device_fingerprint);
 
         const row = rows && rows.length > 0 ? rows[0] : null;
@@ -120,6 +118,10 @@ exports.syncDevice = async (req, res) => {
             .from('devices')
             .update({ last_sync: new Date().toISOString() })
             .eq('device_fingerprint', device_fingerprint);
+        if (row.status === 'active') {
+            const blob = generateLicenseBlob(row.licenses, device_fingerprint);
+            return res.json({ status: row.status, license_token: blob });
+        }
             
         res.json({ status: row.status });
     } catch (err) {

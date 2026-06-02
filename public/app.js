@@ -280,7 +280,7 @@ async function fetchDevices() {
         data.forEach(dev => {
             const tr = document.createElement('tr');
             
-            if (dev.status === 'pending') {
+            if (dev.status === 'pending' || dev.status === 'pending_approval') {
                 pendingCount++;
                 tr.innerHTML = `
                     <td><strong>${dev.clinic_name || 'غير معروف'}</strong></td>

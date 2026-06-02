@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Initialize Supabase Client
-const supabaseUrl = process.env.SUPABASE_URL || 'https://xtckevhaggxezvqcikph.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0Y2tldmhhZ2d4ZXp2cWNpa3BoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDMyMjg5MywiZXhwIjoyMDk1ODk4ODkzfQ.hm4l-Ttnkg_ZC8GBLJDFydMz4oGVTy9lJb-SSCgmDzQ';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://yqvclrposdiqpahnllph.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxdmNscnBvc2RpcXBhaG5sbHBoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDMxNzkwNSwiZXhwIjoyMDk1ODkzOTA1fQ.u52hnAzrOJnu23ey2VS3_Y58hgzaueUIIGWtuAObSWc';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // تحميل المفتاح الخاص لتوقيع التراخيص

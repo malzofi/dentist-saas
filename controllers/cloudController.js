@@ -89,9 +89,10 @@ exports.activateRequest = async (req, res) => {
         }
 
         // 3. Register new device as active directly (Auto-Approve)
+        // Use upsert to handle if device_fingerprint already exists for an older license
         const { error: insertError } = await supabase
             .from('devices')
-            .insert([{ license_id: license.id, device_fingerprint, status: 'active' }]);
+            .upsert([{ license_id: license.id, device_fingerprint, status: 'active' }], { onConflict: 'device_fingerprint' });
 
         if (insertError) return res.status(500).json({ error: 'DB_ERROR' });
         

@@ -3,149 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS Manager | لوحة التحكم</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>SaaS Manager Pro | لوحة التحكم</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="glass-bg"></div>
-
+    <!-- Background Effects -->
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+    <div class="glow-bg glow-3"></div>
+    
     <!-- Login Screen -->
     <div id="login-screen" class="screen active">
-        <div class="glass-card login-card">
-            <div class="logo-container">
-                <div class="logo-icon">☁️</div>
-                <h1>SaaS Manager</h1>
-            </div>
-            <p class="subtitle">بوابة الإدارة المركزية (Super Admin)</p>
-            <form id="login-form">
-                <div class="input-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="password" required placeholder="أدخل كلمة المرور الخاصة بك">
+        <div class="login-wrapper">
+            <div class="login-card glass-panel">
+                <div class="brand-header">
+                    <div class="logo-circle">
+                        <i class="ph-fill ph-cloud-check"></i>
+                    </div>
+                    <h1>SaaS Manager <span class="accent-text">Pro</span></h1>
+                    <p>النظام المركزي لإدارة عيادات الأسنان السحابية</p>
                 </div>
-                <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
-                <div id="login-error" class="error-msg"></div>
-            </form>
+                <form id="login-form" class="modern-form">
+                    <div class="input-group">
+                        <label><i class="ph ph-lock-key"></i> رمز الدخول السري</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" required placeholder="••••••••••••" autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-glow login-btn">
+                        <span>تسجيل الدخول</span>
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <div id="login-error" class="error-msg"></div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- Dashboard Screen -->
-    <div id="dashboard-screen" class="screen">
-        <nav class="glass-nav">
-            <div class="nav-brand">SaaS Manager <span>Pro</span></div>
-            <button id="logout-btn" class="btn btn-outline">تسجيل الخروج</button>
-        </nav>
-
-        <main class="dashboard-grid">
-            <!-- Header Actions -->
-            <div class="glass-card header-card">
-                <div>
-                    <h2>إدارة التراخيص والعيادات</h2>
-                    <p>قم بإنشاء تراخيص جديدة للعيادات بنقرة واحدة</p>
-                </div>
-                <button class="btn btn-primary" onclick="openLicenseModal()">+ إصدار رخصة جديدة</button>
+    <!-- Main Application Screen -->
+    <div id="app-screen" class="screen">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-brand">
+                <i class="ph-fill ph-cloud-check"></i>
+                <h2>SaaS <span class="accent-text">Pro</span></h2>
             </div>
-
-            <!-- Stats -->
-            <div class="stats-container">
-                <div class="glass-card stat-card">
-                    <h3>الرخص النشطة</h3>
-                    <div class="stat-value" id="total-licenses">0</div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard-tab">
+                    <i class="ph ph-squares-four"></i>
+                    <span>نظرة عامة</span>
+                </button>
+                <button class="nav-item" data-tab="licenses-tab">
+                    <i class="ph ph-key"></i>
+                    <span>التراخيص</span>
+                </button>
+                <button class="nav-item" data-tab="devices-tab">
+                    <i class="ph ph-laptop"></i>
+                    <span>الأجهزة <span class="badge notification-badge" id="nav-pending-count" style="display:none">0</span></span>
+                </button>
+                <button class="nav-item" data-tab="clinics-tab">
+                    <i class="ph ph-buildings"></i>
+                    <span>بيانات العيادات</span>
+                </button>
+                <button class="nav-item" data-tab="settings-tab">
+                    <i class="ph ph-gear"></i>
+                    <span>الإعدادات</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="avatar"><i class="ph ph-user"></i></div>
+                    <div class="admin-info">
+                        <span class="admin-name">Super Admin</span>
+                        <span class="admin-role">System Owner</span>
+                    </div>
                 </div>
-                <div class="glass-card stat-card">
-                    <h3>الأجهزة المرتبطة</h3>
-                    <div class="stat-value" id="total-devices">0</div>
-                </div>
-                <div class="glass-card stat-card warning">
-                    <h3>بانتظار الموافقة</h3>
-                    <div class="stat-value" id="pending-devices">0</div>
-                </div>
+                <button id="logout-btn" class="btn btn-ghost" title="تسجيل الخروج">
+                    <i class="ph ph-sign-out"></i>
+                </button>
             </div>
+        </aside>
 
-            <!-- Lists Area -->
-            <div class="lists-container">
-                <!-- Pending Devices -->
-                <div class="glass-card list-card">
-                    <div class="card-header">
-                        <h3>الأجهزة بانتظار الموافقة ⚠️</h3>
-                        <button class="btn btn-small" onclick="fetchDevices()">تحديث</button>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="topbar glass-panel">
+                <div class="topbar-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" placeholder="البحث عن عيادة أو رخصة..." id="global-search">
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-icon"><i class="ph ph-bell"></i></button>
+                    <button class="btn btn-primary" onclick="openLicenseModal()">
+                        <i class="ph ph-plus"></i> رخصة جديدة
+                    </button>
+                </div>
+            </header>
+
+            <!-- Views / Tabs -->
+            <div class="views-container">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="view-pane active">
+                    <div class="page-header">
+                        <h2>نظرة عامة</h2>
+                        <p class="subtitle">مراقبة أداء المنظومة السحابية</p>
                     </div>
-                    <div class="table-responsive">
-                        <table id="pending-table">
-                            <thead>
-                                <tr>
-                                    <th>اسم العيادة</th>
-                                    <th>بصمة الجهاز</th>
-                                    <th>تاريخ الطلب</th>
-                                    <th>إجراء</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be populated here -->
-                            </tbody>
-                        </table>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon primary-bg"><i class="ph ph-key"></i></div>
+                            <div class="stat-info">
+                                <h3>الرخص النشطة</h3>
+                                <div class="stat-number" id="stat-active-licenses">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon success-bg"><i class="ph ph-laptop"></i></div>
+                            <div class="stat-info">
+                                <h3>الأجهزة المعتمدة</h3>
+                                <div class="stat-number" id="stat-approved-devices">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon warning-bg"><i class="ph ph-warning-circle"></i></div>
+                            <div class="stat-info">
+                                <h3>بانتظار الموافقة</h3>
+                                <div class="stat-number" id="stat-pending-devices">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon info-bg"><i class="ph ph-users"></i></div>
+                            <div class="stat-info">
+                                <h3>إجمالي المرضى السحابيين</h3>
+                                <div class="stat-number" id="stat-total-patients">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container glass-panel">
+                            <div class="card-header">
+                                <h3>نمو التراخيص والأجهزة</h3>
+                                <button class="btn btn-icon" onclick="initChart()"><i class="ph ph-arrows-clockwise"></i></button>
+                            </div>
+                            <div class="canvas-wrapper">
+                                <canvas id="mainChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Active Licenses -->
-                <div class="glass-card list-card mt-4">
-                    <div class="card-header">
-                        <h3>سجل التراخيص (Licenses)</h3>
-                        <button class="btn btn-small" onclick="fetchLicenses()">تحديث</button>
+                <!-- Licenses Tab -->
+                <div id="licenses-tab" class="view-pane">
+                    <div class="page-header flex-between">
+                        <div>
+                            <h2>سجل التراخيص</h2>
+                            <p class="subtitle">إدارة ومراقبة جميع التراخيص الصادرة</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openLicenseModal()">
+                            <i class="ph ph-plus"></i> رخصة جديدة
+                        </button>
                     </div>
-                    <div class="table-responsive">
-                        <table id="licenses-table">
-                            <thead>
-                                <tr>
-                                    <th>العيادة</th>
-                                    <th>مفتاح الرخصة</th>
-                                    <th>الأجهزة المسموحة</th>
-                                    <th>تاريخ الانتهاء</th>
-                                    <th>الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be populated here -->
-                            </tbody>
-                        </table>
+                    <div class="data-table-card glass-panel">
+                        <div class="table-actions">
+                            <div class="search-box">
+                                <i class="ph ph-magnifying-glass"></i>
+                                <input type="text" id="license-search" placeholder="بحث باسم العيادة...">
+                            </div>
+                            <button class="btn btn-outline" onclick="fetchLicenses()"><i class="ph ph-arrows-clockwise"></i> تحديث</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="licenses-table">
+                                <thead>
+                                    <tr>
+                                        <th>اسم العيادة / الطبيب</th>
+                                        <th>مفتاح الرخصة</th>
+                                        <th>الأجهزة</th>
+                                        <th>تاريخ الإنشاء</th>
+                                        <th>تاريخ الانتهاء</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                    <tr><td colspan="7" class="text-center loading-text">جاري التحميل...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Devices Tab -->
+                <div id="devices-tab" class="view-pane">
+                    <div class="page-header">
+                        <h2>إدارة الأجهزة</h2>
+                        <p class="subtitle">الموافقة على الأجهزة الجديدة ومراقبة الأجهزة النشطة</p>
+                    </div>
+                    
+                    <div class="data-table-card glass-panel mb-4 border-warning">
+                        <div class="card-header flex-between">
+                            <h3><i class="ph ph-warning-circle text-warning"></i> أجهزة بانتظار الموافقة</h3>
+                            <button class="btn btn-outline btn-small" onclick="fetchDevices()"><i class="ph ph-arrows-clockwise"></i></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="pending-table">
+                                <thead>
+                                    <tr>
+                                        <th>العيادة</th>
+                                        <th>بصمة الجهاز (Hardware ID)</th>
+                                        <th>تاريخ الطلب</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="data-table-card glass-panel">
+                        <div class="card-header">
+                            <h3><i class="ph ph-laptop text-success"></i> الأجهزة المعتمدة</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="approved-table">
+                                <thead>
+                                    <tr>
+                                        <th>العيادة</th>
+                                        <th>بصمة الجهاز</th>
+                                        <th>تاريخ الموافقة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinics Tab -->
+                <div id="clinics-tab" class="view-pane">
+                    <div class="page-header flex-between">
+                        <div>
+                            <h2>بيانات العيادات السحابية</h2>
+                            <p class="subtitle">إحصائيات البيانات التي تم مزامنتها من تطبيق سطح المكتب</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="fetchClinicsData()"><i class="ph ph-arrows-clockwise"></i> تحديث الإحصائيات</button>
+                    </div>
+                    <div class="data-table-card glass-panel">
+                        <div class="table-responsive">
+                            <table class="modern-table" id="clinics-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>العيادة</th>
+                                        <th>عدد المرضى</th>
+                                        <th>عدد الجلسات (المواعيد)</th>
+                                        <th>المخزون (الأصناف)</th>
+                                        <th>آخر مزامنة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings-tab" class="view-pane">
+                    <div class="page-header">
+                        <h2>الإعدادات</h2>
+                        <p class="subtitle">إدارة إعدادات النظام السحابي</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card glass-panel">
+                            <h3><i class="ph ph-shield-check"></i> الحماية والأمان</h3>
+                            <p class="text-secondary mb-4">كلمة المرور الحالية يتم التحكم بها عبر متغيرات البيئة (Environment Variables) في Vercel تحت اسم ADMIN_PASSWORD.</p>
+                            <a href="https://vercel.com/dashboard" target="_blank" class="btn btn-outline">
+                                <i class="ph ph-external-link"></i> إدارة المتغيرات في Vercel
+                            </a>
+                        </div>
+                        <div class="setting-card glass-panel">
+                            <h3><i class="ph ph-database"></i> قاعدة البيانات Supabase</h3>
+                            <p class="text-secondary mb-4">إدارة الجداول والصلاحيات يتم مباشرة من لوحة تحكم Supabase.</p>
+                            <a href="https://supabase.com/dashboard" target="_blank" class="btn btn-outline">
+                                <i class="ph ph-external-link"></i> فتح لوحة Supabase
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Modals -->
     <!-- Generate License Modal -->
-    <div id="license-modal" class="modal">
-        <div class="glass-card modal-content">
-            <h3>إصدار رخصة جديدة</h3>
-            <form id="create-license-form">
-                <div class="input-group">
-                    <label>اسم العيادة / الطبيب</label>
-                    <input type="text" id="clinic-name" required placeholder="مثال: عيادة الأمل لطب الأسنان">
-                </div>
-                <div class="row">
+    <div id="license-modal" class="modal-overlay">
+        <div class="modal-box glass-panel slide-up">
+            <div class="modal-header">
+                <h3><i class="ph ph-key"></i> إصدار رخصة جديدة</h3>
+                <button class="btn-icon close-modal" onclick="closeLicenseModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-license-form" class="modern-form">
                     <div class="input-group">
-                        <label>عدد الأجهزة المسموحة</label>
-                        <input type="number" id="allowed-devices" min="1" value="1" required>
+                        <label>اسم العيادة أو الطبيب</label>
+                        <div class="input-wrapper">
+                            <i class="ph ph-buildings"></i>
+                            <input type="text" id="clinic-name" required placeholder="مثال: د. محمد للأسنان">
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>مدة الرخصة (بالأشهر)</label>
-                        <select id="expiry-months" required>
-                            <option value="1">شهر واحد (تجربة)</option>
-                            <option value="6">6 أشهر</option>
-                            <option value="12" selected>سنة كاملة</option>
-                            <option value="24">سنتين</option>
-                            <option value="120">10 سنوات (مدى الحياة)</option>
-                        </select>
+                    <div class="row-grid">
+                        <div class="input-group">
+                            <label>عدد الأجهزة المسموحة</label>
+                            <div class="input-wrapper">
+                                <i class="ph ph-laptop"></i>
+                                <input type="number" id="allowed-devices" min="1" value="1" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>مدة الرخصة (بالأشهر)</label>
+                            <div class="input-wrapper">
+                                <i class="ph ph-calendar"></i>
+                                <select id="expiry-months" required>
+                                    <option value="1">شهر واحد (تجريبية)</option>
+                                    <option value="6">6 أشهر</option>
+                                    <option value="12" selected>سنة كاملة (الأساسية)</option>
+                                    <option value="24">سنتين</option>
+                                    <option value="120">10 سنوات (مدى الحياة)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeLicenseModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">توليد وحفظ</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeLicenseModal()">إلغاء</button>
+                        <button type="submit" class="btn btn-primary btn-glow">
+                            <i class="ph ph-magic-wand"></i> توليد الرخصة
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="app.js"></script>
 </body>

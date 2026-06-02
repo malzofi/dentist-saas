@@ -48,12 +48,12 @@ exports.activateRequest = async (req, res) => {
 
     try {
         // 1. Verify license exists
-        const { data: license, error: licenseError } = await supabase
+        const { data: licenseRows, error: licenseError } = await supabase
             .from('licenses')
             .select('*')
-            .eq('license_key', license_key)
-            .single();
+            .eq('license_key', license_key);
 
+        const license = licenseRows && licenseRows.length > 0 ? licenseRows[0] : null;
         if (licenseError || !license) {
             return res.status(404).json({ error: 'INVALID_LICENSE' });
         }
@@ -106,12 +106,12 @@ exports.syncDevice = async (req, res) => {
     const { device_fingerprint } = req.body;
     
     try {
-        const { data: row, error } = await supabase
+        const { data: rows, error } = await supabase
             .from('devices')
             .select('status')
-            .eq('device_fingerprint', device_fingerprint)
-            .single();
+            .eq('device_fingerprint', device_fingerprint);
 
+        const row = rows && rows.length > 0 ? rows[0] : null;
         if (error || !row) return res.status(404).json({ status: 'unknown' });
         
         await supabase

@@ -12,6 +12,7 @@ const cloudController = require('./controllers/cloudController');
 // Client endpoints
 app.post('/api/cloud/activate-request', cloudController.activateRequest);
 app.post('/api/cloud/sync', cloudController.syncDevice);
+app.get('/api/cloud/updates/latest', cloudController.getLatestUpdate);
 
 // SuperAdmin endpoints
 // Admin Dashboard Routes
@@ -21,6 +22,8 @@ app.get('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudControlle
 app.post('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.createLicense);
 app.get('/api/cloud/admin/devices', cloudController.verifyAdmin, cloudController.getDevices);
 app.post('/api/cloud/admin/approve', cloudController.verifyAdmin, cloudController.approveDevice);
+app.get('/api/cloud/admin/updates', cloudController.verifyAdmin, cloudController.getUpdateHistory);
+app.post('/api/cloud/admin/updates', cloudController.verifyAdmin, cloudController.publishUpdate);
 
 // Serve Static Frontend (Dashboard)
 const path = require('path');

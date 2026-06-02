@@ -70,6 +70,10 @@
                     <i class="ph ph-laptop"></i>
                     <span>الأجهزة <span class="badge notification-badge" id="nav-pending-count" style="display:none">0</span></span>
                 </button>
+                <button class="nav-item" data-tab="updates-tab">
+                    <i class="ph ph-rocket"></i>
+                    <span>مركز التحديثات</span>
+                </button>
                 <button class="nav-item" data-tab="clinics-tab">
                     <i class="ph ph-buildings"></i>
                     <span>بيانات العيادات</span>
@@ -282,6 +286,41 @@
                     </div>
                 </div>
 
+                <!-- Updates Tab -->
+                <div id="updates-tab" class="view-pane">
+                    <div class="page-header flex-between">
+                        <div>
+                            <h2>مركز التحديثات الهوائية (OTA)</h2>
+                            <p class="subtitle">إصدار التحديثات ودفعها تلقائياً لجميع العيادات</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openUpdateModal()">
+                            <i class="ph ph-upload-simple"></i> رفع تحديث جديد
+                        </button>
+                    </div>
+                    <div class="data-table-card glass-panel">
+                        <div class="card-header flex-between mb-4">
+                            <h3>سجل الإصدارات (Release History)</h3>
+                            <button class="btn btn-outline btn-small" onclick="fetchUpdates()"><i class="ph ph-arrows-clockwise"></i></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="updates-table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الإصدار</th>
+                                        <th>تاريخ النشر</th>
+                                        <th>مميزات التحديث</th>
+                                        <th>إجباري؟</th>
+                                        <th>الرابط</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings Tab -->
                 <div id="settings-tab" class="view-pane">
                     <div class="page-header">
@@ -352,6 +391,58 @@
                         <button type="button" class="btn btn-ghost" onclick="closeLicenseModal()">إلغاء</button>
                         <button type="submit" class="btn btn-primary btn-glow">
                             <i class="ph ph-magic-wand"></i> توليد الرخصة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publish Update Modal -->
+    <div id="update-modal" class="modal-overlay">
+        <div class="modal-box glass-panel slide-up">
+            <div class="modal-header">
+                <h3><i class="ph ph-rocket"></i> نشر تحديث جديد</h3>
+                <button class="btn-icon close-modal" onclick="closeUpdateModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="publish-update-form" class="modern-form">
+                    <div class="row-grid">
+                        <div class="input-group">
+                            <label>رقم الإصدار (Version)</label>
+                            <div class="input-wrapper">
+                                <i class="ph ph-hash"></i>
+                                <input type="text" id="update-version" required placeholder="مثال: 1.0.28">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>تحديث إجباري؟</label>
+                            <div class="input-wrapper">
+                                <i class="ph ph-warning"></i>
+                                <select id="update-mandatory">
+                                    <option value="false">لا (اختياري)</option>
+                                    <option value="true">نعم (يمنع استخدام التطبيق القديم)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>رابط التحميل المباشر (Direct Download URL)</label>
+                        <div class="input-wrapper">
+                            <i class="ph ph-link"></i>
+                            <input type="url" id="update-url" required placeholder="مثال: https://github.com/.../app.asar">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>مميزات التحديث (Release Notes)</label>
+                        <div class="input-wrapper" style="height: auto;">
+                            <textarea id="update-notes" rows="3" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border-glass); border-radius:10px; color:white; padding:12px; font-family:inherit;" placeholder="ما الجديد في هذا الإصدار؟"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeUpdateModal()">إلغاء</button>
+                        <button type="submit" class="btn btn-primary btn-glow">
+                            <i class="ph ph-paper-plane-right"></i> إرسال التحديث لجميع العيادات
                         </button>
                     </div>
                 </form>

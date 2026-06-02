@@ -114,7 +114,7 @@ function setupNavigation() {
             if (targetId === 'dashboard-tab') initChart();
             if (targetId === 'licenses-tab') fetchLicenses();
             if (targetId === 'devices-tab') fetchDevices();
-            if (targetId === 'clinics-tab') fetchClinicsData();
+            if (targetId === 'updates-tab') fetchUpdates();
         });
     });
 }
@@ -140,7 +140,8 @@ async function refreshAllData() {
     await Promise.all([
         fetchLicenses(),
         fetchDevices(),
-        fetchClinicsData()
+        fetchClinicsData(),
+        fetchUpdates()
     ]);
     updateDashboardStats();
     setTimeout(initChart, 500); // Wait for DOM
@@ -388,6 +389,88 @@ function closeLicenseModal() {
 // Close modal on click outside
 licenseModal.addEventListener('click', (e) => {
     if(e.target === licenseModal) closeLicenseModal();
+});
+
+// --- Updates Center Logic ---
+
+async function fetchUpdates() {
+    try {
+        const tbody = document.querySelector('#updates-table tbody');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center"><i class="ph ph-spinner ph-spin text-primary"></i> جاري التحميل...</td></tr>';
+        
+        const res = await apiCall('/updates');
+        const data = await res.json();
+        
+        tbody.innerHTML = '';
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">لا توجد أي تحديثات مصدرة بعد</td></tr>';
+            return;
+        }
+
+        data.forEach(upd => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="badge active">v${upd.version}</span></td>
+                <td>${new Date(upd.created_at).toLocaleString('ar-SA')}</td>
+                <td>${upd.release_notes || '-'}</td>
+                <td>${upd.is_mandatory ? '<span class="badge expired">نعم</span>' : '<span class="badge pending">لا</span>'}</td>
+                <td>
+                    <a href="${upd.download_url}" target="_blank" class="btn btn-icon btn-outline" title="تحميل الملف">
+                        <i class="ph ph-download-simple"></i>
+                    </a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+document.getElementById('publish-update-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const version = document.getElementById('update-version').value;
+    const is_mandatory = document.getElementById('update-mandatory').value === 'true';
+    const download_url = document.getElementById('update-url').value;
+    const release_notes = document.getElementById('update-notes').value;
+    const btn = e.target.querySelector('button[type="submit"]');
+
+    try {
+        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> جاري النشر...';
+        btn.disabled = true;
+
+        const res = await apiCall('/updates', {
+            method: 'POST',
+            body: JSON.stringify({ version, is_mandatory, download_url, release_notes })
+        });
+        
+        if (res.ok) {
+            showToast('تم نشر التحديث بنجاح! جميع العيادات ستبدأ بتحميله.', 'success');
+            closeUpdateModal();
+            fetchUpdates();
+        } else {
+            showToast('فشل في نشر التحديث', 'error');
+        }
+    } catch (err) {
+        showToast('خطأ في الاتصال بالخادم', 'error');
+    } finally {
+        btn.innerHTML = '<i class="ph ph-paper-plane-right"></i> إرسال التحديث لجميع العيادات';
+        btn.disabled = false;
+    }
+});
+
+const updateModal = document.getElementById('update-modal');
+function openUpdateModal() { 
+    updateModal.classList.add('active'); 
+    document.getElementById('update-version').focus();
+}
+function closeUpdateModal() { 
+    updateModal.classList.remove('active'); 
+    document.getElementById('publish-update-form').reset();
+}
+
+updateModal.addEventListener('click', (e) => {
+    if(e.target === updateModal) closeUpdateModal();
 });
 
 // Utils

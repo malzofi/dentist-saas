@@ -23,3 +23,13 @@ CREATE TABLE IF NOT EXISTS devices (
 INSERT INTO licenses (clinic_name, license_key, allowed_devices, expiry_date) 
 VALUES ('عيادة التجربة', 'TEST-KEY-123', 1, CURRENT_TIMESTAMP + INTERVAL '1 year')
 ON CONFLICT (license_key) DO NOTHING;
+
+-- 4. Create App Updates Table
+CREATE TABLE IF NOT EXISTS app_updates (
+    id SERIAL PRIMARY KEY,
+    version TEXT NOT NULL,
+    release_notes TEXT,
+    download_url TEXT NOT NULL,
+    is_mandatory BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

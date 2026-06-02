@@ -264,3 +264,75 @@ function generateLicenseBlob(license, device_fingerprint) {
     // Sign with RS256 using Private Key
     return jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256' });
 }
+
+// --- Updates Endpoints ---
+
+exports.getLatestUpdate = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('app_updates')
+            .select('*')
+            .order('id', { ascending: false })
+            .limit(1);
+            
+        if (error || !data || data.length === 0) {
+            return res.json({ available: false });
+        }
+        
+        const latest = data[0];
+        // The desktop app sends current_version, if it matches, available is false
+        const currentVersion = req.query.current_version;
+        if (currentVersion === latest.version) {
+            return res.json({ available: false });
+        }
+        
+        res.json({
+            available: true,
+            version: latest.version,
+            release_notes: latest.release_notes,
+            download_url: latest.download_url,
+            is_mandatory: latest.is_mandatory
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
+exports.getUpdateHistory = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('app_updates')
+            .select('*')
+            .order('id', { ascending: false });
+            
+        if (error) return res.status(500).json({ error: 'DB_ERROR' });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
+exports.publishUpdate = async (req, res) => {
+    const { version, release_notes, download_url, is_mandatory } = req.body;
+    
+    if (!version || !download_url) {
+        return res.status(400).json({ error: 'MISSING_DATA' });
+    }
+    
+    try {
+        const { data, error } = await supabase
+            .from('app_updates')
+            .insert([{
+                version,
+                release_notes,
+                download_url,
+                is_mandatory: !!is_mandatory
+            }])
+            .select();
+            
+        if (error) return res.status(500).json({ error: 'DB_ERROR' });
+        res.json({ success: true, update: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};

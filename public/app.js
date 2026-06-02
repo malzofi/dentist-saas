@@ -1,3 +1,28 @@
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('saas_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+window.toggleTheme = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('saas_theme', newTheme);
+    updateThemeIcon(newTheme);
+};
+
+function updateThemeIcon(theme) {
+    const icon = document.querySelector('#theme-toggle i');
+    if(icon) {
+        icon.className = theme === 'dark' ? 'ph ph-sun' : 'ph ph-moon';
+    }
+}
+
+// Ensure theme is initialized immediately
+initTheme();
+
 // Global State
 const state = {
     token: localStorage.getItem('saas_admin_token') || null,
@@ -217,7 +242,8 @@ async function fetchLicenses() {
 }
 
 // Devices API
-async function deleteLicense(id, clinicName) {
+window.deleteLicense = async function(id, clinicName) {
+    console.log("Delete button clicked for ID:", id);
     if(!confirm(`هل أنت متأكد من حذف رخصة عيادة "${clinicName}" نهائياً؟ سيؤدي هذا لفصل جميع أجهزتهم.`)) return;
     
     try {
@@ -226,12 +252,15 @@ async function deleteLicense(id, clinicName) {
             showToast('تم إبطال وحذف الرخصة بنجاح!', 'success');
             fetchLicenses();
         } else {
-            showToast('فشل في حذف الرخصة', 'error');
+            const err = await res.json();
+            console.error("Delete failed:", err);
+            showToast('فشل في حذف الرخصة: ' + (err.error || ''), 'error');
         }
     } catch (err) {
+        console.error("Network error on delete:", err);
         showToast('خطأ في الاتصال بالخادم', 'error');
     }
-}
+};
 
 // Devices API
 async function fetchDevices() {

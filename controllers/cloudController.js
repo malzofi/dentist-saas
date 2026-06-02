@@ -88,14 +88,15 @@ exports.activateRequest = async (req, res) => {
             return res.status(403).json({ error: 'DEVICE_LIMIT_REACHED', message: 'وصلت العيادة للحد الأقصى للأجهزة.' });
         }
 
-        // 3. Register new device as pending
+        // 3. Register new device as active directly (Auto-Approve)
         const { error: insertError } = await supabase
             .from('devices')
-            .insert([{ license_id: license.id, device_fingerprint, status: 'pending' }]);
+            .insert([{ license_id: license.id, device_fingerprint, status: 'active' }]);
 
         if (insertError) return res.status(500).json({ error: 'DB_ERROR' });
         
-        res.json({ status: 'pending', message: 'تم استلام طلب التفعيل. يرجى انتظار الموافقة.' });
+        const blob = generateLicenseBlob(license, device_fingerprint);
+        return res.json({ status: 'active', blob, message: 'تم التفعيل بنجاح (موافقة تلقائية).' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'SERVER_ERROR' });

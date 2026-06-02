@@ -20,6 +20,7 @@ app.post('/api/cloud/admin/login', cloudController.login);
 // Protect these routes with verifyAdmin middleware
 app.get('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.getLicenses);
 app.post('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.createLicense);
+app.delete('/api/cloud/admin/licenses/:id', cloudController.verifyAdmin, cloudController.deleteLicense);
 app.get('/api/cloud/admin/devices', cloudController.verifyAdmin, cloudController.getDevices);
 app.post('/api/cloud/admin/approve', cloudController.verifyAdmin, cloudController.approveDevice);
 app.get('/api/cloud/admin/updates', cloudController.verifyAdmin, cloudController.getUpdateHistory);

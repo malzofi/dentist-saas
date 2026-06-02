@@ -252,6 +252,23 @@ exports.createLicense = async (req, res) => {
     }
 };
 
+// 5. Delete License
+exports.deleteLicense = async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const { error } = await supabase
+            .from('licenses')
+            .delete()
+            .eq('id', id);
+            
+        if (error) return res.status(500).json({ error: 'DB_ERROR', details: error });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
 // Helper function to create RSA-signed JWT
 function generateLicenseBlob(license, device_fingerprint) {
     const payload = {

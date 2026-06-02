@@ -203,7 +203,9 @@ async function fetchLicenses() {
                 <td>${exp.toLocaleDateString('ar-SA')}</td>
                 <td>${statusBadge}</td>
                 <td>
-                    <button class="btn btn-icon text-danger" title="إبطال الرخصة"><i class="ph ph-trash"></i></button>
+                    <button class="btn btn-icon text-danger" title="إبطال الرخصة" onclick="deleteLicense('${lic.id}', '${lic.clinic_name}')">
+                        <i class="ph ph-trash"></i>
+                    </button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -211,6 +213,23 @@ async function fetchLicenses() {
         updateDashboardStats();
     } catch (err) {
         console.error(err);
+    }
+}
+
+// Devices API
+async function deleteLicense(id, clinicName) {
+    if(!confirm(`هل أنت متأكد من حذف رخصة عيادة "${clinicName}" نهائياً؟ سيؤدي هذا لفصل جميع أجهزتهم.`)) return;
+    
+    try {
+        const res = await apiCall(`/licenses/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            showToast('تم إبطال وحذف الرخصة بنجاح!', 'success');
+            fetchLicenses();
+        } else {
+            showToast('فشل في حذف الرخصة', 'error');
+        }
+    } catch (err) {
+        showToast('خطأ في الاتصال بالخادم', 'error');
     }
 }
 
@@ -521,23 +540,28 @@ function initChart() {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#0f172a',
+                    bodyColor: '#64748b',
+                    borderColor: 'rgba(15, 23, 42, 0.08)',
+                    borderWidth: 1,
                     titleFont: { family: 'Tajawal' },
                     bodyFont: { family: 'Tajawal' },
                     padding: 12,
                     cornerRadius: 8,
-                    displayColors: false
+                    displayColors: false,
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#94a3b8', font: { family: 'Tajawal' } }
+                    grid: { color: 'rgba(0, 0, 0, 0.03)' },
+                    ticks: { color: '#64748b', font: { family: 'Tajawal' } }
                 },
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#94a3b8', stepSize: 1 }
+                    grid: { color: 'rgba(0, 0, 0, 0.03)' },
+                    ticks: { color: '#64748b', stepSize: 1 }
                 }
             }
         }

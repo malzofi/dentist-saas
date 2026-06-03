@@ -246,6 +246,7 @@
                                         <th>العيادة</th>
                                         <th>بصمة الجهاز</th>
                                         <th>تاريخ الموافقة</th>
+                                        <th>إجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -374,15 +375,14 @@
                         </div>
                         <div class="input-group">
                             <label>مدة الرخصة (بالأشهر)</label>
-                            <div class="input-wrapper">
-                                <i class="ph ph-calendar"></i>
-                                <select id="expiry-months" required>
-                                    <option value="1">شهر واحد (تجريبية)</option>
-                                    <option value="6">6 أشهر</option>
-                                    <option value="12" selected>سنة كاملة (الأساسية)</option>
-                                    <option value="24">سنتين</option>
-                                    <option value="120">10 سنوات (مدى الحياة)</option>
-                                </select>
+                            <div class="input-wrapper" style="display: flex; gap: 10px; padding: 0;">
+                                <div style="flex: 1; position: relative;">
+                                    <input type="number" id="expiry-months" min="1" value="12" placeholder="عدد الأشهر" style="width: 100%; border: none; background: transparent; color: white; padding: 12px; outline: none;" required>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px; padding-left: 12px; border-right: 1px solid var(--border-glass);">
+                                    <input type="checkbox" id="is-lifetime" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;">
+                                    <label for="is-lifetime" style="cursor: pointer; font-size: 13px; font-weight: bold; margin: 0;">مدى الحياة</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -445,6 +445,25 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View License Blob Modal -->
+    <div id="blob-modal" class="modal-overlay">
+        <div class="modal-box glass-panel slide-up" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="ph ph-shield-check"></i> الرخصة المشفرة الدائمة</h3>
+                <button class="btn-icon close-modal" onclick="closeBlobModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-secondary mb-4" style="line-height: 1.6;">تم التوليد بنجاح! يرجى نسخ هذا الرمز بالكامل وإرساله إلى العيادة ليتمكنوا من تفعيل النظام يدوياً.</p>
+                <div style="position: relative; margin-top: 15px;">
+                    <textarea id="blob-textarea" readonly rows="6" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:12px; color:#10b981; padding:16px; font-family:monospace; font-size: 13px; word-break: break-all; resize: none;"></textarea>
+                    <button class="btn btn-primary btn-small" onclick="copyBlobText()" style="margin-top: 15px; width: 100%;">
+                        <i class="ph ph-copy"></i> نسخ الرخصة المشفرة
+                    </button>
+                </div>
             </div>
         </div>
     </div>

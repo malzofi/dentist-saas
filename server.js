@@ -23,6 +23,7 @@ app.post('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudControll
 app.delete('/api/cloud/admin/licenses/:id', cloudController.verifyAdmin, cloudController.deleteLicense);
 app.get('/api/cloud/admin/devices', cloudController.verifyAdmin, cloudController.getDevices);
 app.post('/api/cloud/admin/approve', cloudController.verifyAdmin, cloudController.approveDevice);
+app.get('/api/cloud/admin/devices/:id/license-blob', cloudController.verifyAdmin, cloudController.getDeviceLicenseBlob);
 app.get('/api/cloud/admin/updates', cloudController.verifyAdmin, cloudController.getUpdateHistory);
 app.post('/api/cloud/admin/updates', cloudController.verifyAdmin, cloudController.publishUpdate);
 

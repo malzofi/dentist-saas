@@ -304,6 +304,11 @@ async function fetchDevices() {
                     <td><strong>${dev.clinic_name || 'غير معروف'}</strong></td>
                     <td class="code-font">${dev.device_fingerprint}</td>
                     <td>${new Date(dev.updated_at || dev.created_at).toLocaleString('ar-SA')}</td>
+                    <td>
+                        <button class="btn btn-small btn-primary btn-outline" onclick="viewDeviceBlob('${dev.id}', '${dev.clinic_name}')">
+                            <i class="ph ph-eye"></i> عرض الرخصة
+                        </button>
+                    </td>
                 `;
                 approvedTbody.appendChild(tr);
             }
@@ -336,13 +341,30 @@ async function approveDevice(deviceId, clinicName) {
             
             // Show the permanent license to the admin
             if (data.license_blob) {
-                // We'll create a simple prompt or alert, or better yet, just show it in a modal
-                prompt('تم إنشاء الرخصة الدائمة بنجاح! انسخ هذا الرمز بالكامل وقم بإرساله إلى العيادة ليتمكنوا من تفعيل النظام:', data.license_blob);
+                openBlobModal(data.license_blob);
             }
             
             fetchDevices();
         } else {
             showToast('حدث خطأ أثناء الموافقة', 'error');
+        }
+    } catch (err) {
+        showToast('خطأ في الاتصال بالخادم', 'error');
+    }
+}
+
+async function viewDeviceBlob(deviceId, clinicName) {
+    try {
+        const res = await apiCall(`/devices/${deviceId}/license-blob`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.license_blob) {
+                openBlobModal(data.license_blob);
+            } else {
+                showToast('لم يتم العثور على الرخصة!', 'error');
+            }
+        } else {
+            showToast('فشل في جلب الرخصة المشفرة', 'error');
         }
     } catch (err) {
         showToast('خطأ في الاتصال بالخادم', 'error');
@@ -401,7 +423,7 @@ document.getElementById('create-license-form').addEventListener('submit', async 
     e.preventDefault();
     const clinicName = document.getElementById('clinic-name').value;
     const allowedDevices = parseInt(document.getElementById('allowed-devices').value);
-    const monthsValid = parseInt(document.getElementById('expiry-months').value);
+    const monthsValid = document.getElementById('is-lifetime').checked ? 'lifetime' : document.getElementById('expiry-months').value;
     const btn = e.target.querySelector('button[type="submit"]');
 
     try {
@@ -431,7 +453,17 @@ document.getElementById('create-license-form').addEventListener('submit', async 
     }
 });
 
-// Modal Logic
+document.getElementById('is-lifetime')?.addEventListener('change', (e) => {
+    const input = document.getElementById('expiry-months');
+    if (e.target.checked) {
+        input.disabled = true;
+        input.style.opacity = '0.5';
+    } else {
+        input.disabled = false;
+        input.style.opacity = '1';
+    }
+});
+
 const licenseModal = document.getElementById('license-modal');
 function openLicenseModal() { 
     licenseModal.classList.add('active'); 
@@ -440,12 +472,39 @@ function openLicenseModal() {
 function closeLicenseModal() { 
     licenseModal.classList.remove('active'); 
     document.getElementById('create-license-form').reset();
+    const input = document.getElementById('expiry-months');
+    if (input) {
+        input.disabled = false;
+        input.style.opacity = '1';
+    }
 }
 
 // Close modal on click outside
 licenseModal.addEventListener('click', (e) => {
     if(e.target === licenseModal) closeLicenseModal();
 });
+
+// Blob Modal Logic
+const blobModal = document.getElementById('blob-modal');
+function openBlobModal(blob) {
+    document.getElementById('blob-textarea').value = blob;
+    blobModal.classList.add('active');
+}
+function closeBlobModal() {
+    blobModal.classList.remove('active');
+    document.getElementById('blob-textarea').value = '';
+}
+blobModal.addEventListener('click', (e) => {
+    if (e.target === blobModal) closeBlobModal();
+});
+function copyBlobText() {
+    const text = document.getElementById('blob-textarea').value;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('تم نسخ الرخصة المشفرة بنجاح!', 'success');
+    }).catch(err => {
+        showToast('فشل في النسخ', 'error');
+    });
+}
 
 // --- Updates Center Logic ---
 

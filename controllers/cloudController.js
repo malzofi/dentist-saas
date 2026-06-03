@@ -247,8 +247,13 @@ exports.createLicense = async (req, res) => {
         const license_key = generateKey();
         
         // Calculate expiry date
-        const expiry_date = new Date();
-        expiry_date.setMonth(expiry_date.getMonth() + parseInt(expiry_months));
+        let expiry_date;
+        if (expiry_months === 'lifetime') {
+            expiry_date = new Date('9999-12-31T23:59:59.999Z');
+        } else {
+            expiry_date = new Date();
+            expiry_date.setMonth(expiry_date.getMonth() + parseInt(expiry_months));
+        }
         
         const { data, error } = await supabase
             .from('licenses')
@@ -371,6 +376,26 @@ exports.publishUpdate = async (req, res) => {
             
         if (error) return res.status(500).json({ error: 'DB_ERROR' });
         res.json({ success: true, update: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+};
+
+exports.getDeviceLicenseBlob = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { data: devices, error: fetchError } = await supabase
+            .from('devices')
+            .select('*, licenses(*)')
+            .eq('id', id);
+            
+        if (fetchError || !devices || devices.length === 0) return res.status(404).json({ error: 'NOT_FOUND' });
+        const device = devices[0];
+
+        if (device.status !== 'active') return res.status(400).json({ error: 'DEVICE_NOT_ACTIVE' });
+        
+        const blob = generateLicenseBlob(device.licenses, device.device_fingerprint);
+        res.json({ success: true, license_blob: blob });
     } catch (err) {
         res.status(500).json({ error: 'SERVER_ERROR' });
     }

@@ -331,7 +331,15 @@ async function approveDevice(deviceId, clinicName) {
         });
         
         if (res.ok) {
+            const data = await res.json();
             showToast(`تمت الموافقة على جهاز ${clinicName} بنجاح!`, 'success');
+            
+            // Show the permanent license to the admin
+            if (data.license_blob) {
+                // We'll create a simple prompt or alert, or better yet, just show it in a modal
+                prompt('تم إنشاء الرخصة الدائمة بنجاح! انسخ هذا الرمز بالكامل وقم بإرساله إلى العيادة ليتمكنوا من تفعيل النظام:', data.license_blob);
+            }
+            
             fetchDevices();
         } else {
             showToast('حدث خطأ أثناء الموافقة', 'error');

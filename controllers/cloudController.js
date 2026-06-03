@@ -156,13 +156,26 @@ exports.approveDevice = async (req, res) => {
     const { device_id } = req.body;
     
     try {
+        // Fetch device and license info first to generate blob
+        const { data: devices, error: fetchError } = await supabase
+            .from('devices')
+            .select('*, licenses(*)')
+            .eq('id', device_id);
+            
+        if (fetchError || !devices || devices.length === 0) return res.status(404).json({ error: 'NOT_FOUND' });
+        const device = devices[0];
+
         const { error } = await supabase
             .from('devices')
             .update({ status: 'active' })
             .eq('id', device_id);
 
         if (error) return res.status(400).json({ error: 'FAILED' });
-        res.json({ success: true });
+        
+        // Generate the long blob!
+        const blob = generateLicenseBlob(device.licenses, device.device_fingerprint);
+        
+        res.json({ success: true, license_blob: blob });
     } catch (err) {
         res.status(500).json({ error: 'SERVER_ERROR' });
     }

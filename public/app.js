@@ -423,6 +423,7 @@ document.getElementById('create-license-form').addEventListener('submit', async 
     e.preventDefault();
     const clinicName = document.getElementById('clinic-name').value;
     const allowedDevices = parseInt(document.getElementById('allowed-devices').value);
+    const licenseType = document.getElementById('license-type') ? document.getElementById('license-type').value : 'pro';
     const monthsValid = document.getElementById('is-lifetime').checked ? 'lifetime' : document.getElementById('expiry-months').value;
     const btn = e.target.querySelector('button[type="submit"]');
 
@@ -432,7 +433,7 @@ document.getElementById('create-license-form').addEventListener('submit', async 
 
         const res = await apiCall('/licenses', {
             method: 'POST',
-            body: JSON.stringify({ clinic_name: clinicName, allowed_devices: allowedDevices, expiry_months: monthsValid })
+            body: JSON.stringify({ clinic_name: clinicName, allowed_devices: allowedDevices, expiry_months: monthsValid, license_type: licenseType })
         });
         
         if (res.ok) {

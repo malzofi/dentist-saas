@@ -88,13 +88,24 @@ exports.activateRequest = async (req, res) => {
             return res.status(403).json({ error: 'DEVICE_LIMIT_REACHED', message: 'وصلت العيادة للحد الأقصى للأجهزة.' });
         }
 
-        // 3. Register new device as pending (Requires Admin Approval)
+        // 3. Register new device
+        const isTrial = license.license_key.startsWith('TRIAL-');
+
         const { error: insertError } = await supabase
             .from('devices')
-            .upsert([{ license_id: license.id, device_fingerprint, status: 'pending_approval' }], { onConflict: 'device_fingerprint' });
+            .upsert([{ 
+                license_id: license.id, 
+                device_fingerprint, 
+                status: isTrial ? 'active' : 'pending_approval' 
+            }], { onConflict: 'device_fingerprint' });
 
         if (insertError) return res.status(500).json({ error: 'DB_ERROR' });
         
+        if (isTrial) {
+            const blob = generateLicenseBlob(license, device_fingerprint);
+            return res.json({ status: 'active', blob, message: 'تم تفعيل النسخة التجريبية بنجاح آلياً.' });
+        }
+
         return res.json({ status: 'pending_approval', message: 'تم إرسال طلب التفعيل إلى الإدارة. يرجى الانتظار حتى تتم الموافقة.' });
     } catch (err) {
         console.error(err);
@@ -226,7 +237,7 @@ exports.getLicenses = async (req, res) => {
 
 // 4. Create new license automatically
 exports.createLicense = async (req, res) => {
-    const { clinic_name, allowed_devices, expiry_months } = req.body;
+    const { clinic_name, allowed_devices, expiry_months, license_type } = req.body;
     
     if (!clinic_name || !allowed_devices || !expiry_months) {
         return res.status(400).json({ error: 'MISSING_DATA' });
@@ -234,17 +245,18 @@ exports.createLicense = async (req, res) => {
     
     try {
         // Generate a random, secure license key
-        const generateKey = () => {
+        const generateKey = (type) => {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let key = '';
-            for (let i = 0; i < 16; i++) {
+            for (let i = 0; i < 12; i++) {
                 if (i > 0 && i % 4 === 0) key += '-';
                 key += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            return key; // e.g., ABCD-1234-EFGH-5678
+            return (type === 'trial' ? 'TRIAL-' : 'PRO-') + key;
         };
         
-        const license_key = generateKey();
+        const type = license_type || 'pro';
+        const license_key = generateKey(type);
         
         // Calculate expiry date
         let expiry_date;

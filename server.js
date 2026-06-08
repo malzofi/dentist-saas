@@ -18,6 +18,11 @@ app.get('/api/cloud/updates/latest', cloudController.getLatestUpdate);
 // Admin Dashboard Routes
 app.post('/api/cloud/admin/login', cloudController.login);
 // Protect these routes with verifyAdmin middleware
+app.get('/api/cloud/admin/clinics', cloudController.verifyAdmin, cloudController.getClinics);
+app.post('/api/cloud/admin/clinics', cloudController.verifyAdmin, cloudController.createClinic);
+app.put('/api/cloud/admin/clinics/:id/features', cloudController.verifyAdmin, cloudController.updateClinicFeatures);
+app.post('/api/cloud/admin/clinics/:id/support', cloudController.verifyAdmin, cloudController.requestRemoteSupport);
+
 app.get('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.getLicenses);
 app.post('/api/cloud/admin/licenses', cloudController.verifyAdmin, cloudController.createLicense);
 app.delete('/api/cloud/admin/licenses/:id', cloudController.verifyAdmin, cloudController.deleteLicense);

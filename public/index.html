@@ -271,11 +271,11 @@
                             <table class="modern-table" id="clinics-data-table">
                                 <thead>
                                     <tr>
+                                        <th>معرف العيادة</th>
                                         <th>العيادة</th>
-                                        <th>عدد المرضى</th>
-                                        <th>عدد الجلسات (المواعيد)</th>
-                                        <th>المخزون (الأصناف)</th>
-                                        <th>آخر مزامنة</th>
+                                        <th>حالة الحساب</th>
+                                        <th>تاريخ الإنشاء</th>
+                                        <th>تحكم كامل (CRM)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -473,6 +473,65 @@
                     <button class="btn btn-primary btn-small" onclick="copyBlobText()" style="margin-top: 15px; width: 100%;">
                         <i class="ph ph-copy"></i> نسخ الرخصة المشفرة
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Modal -->
+    <div id="features-modal" class="modal-overlay">
+        <div class="modal-box glass-panel slide-up">
+            <div class="modal-header">
+                <h3><i class="ph ph-toggle-left"></i> التحكم بخصائص العيادة</h3>
+                <button class="btn-icon close-modal" onclick="closeFeaturesModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="features-form" class="modern-form">
+                    <input type="hidden" id="feature-clinic-id">
+                    <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                        <label style="margin:0;"><i class="ph ph-x-square"></i> نظام الأشعة (X-Ray)</label>
+                        <input type="checkbox" id="feat-xray" style="width:20px; height:20px; accent-color: var(--primary);">
+                    </div>
+                    <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                        <label style="margin:0;"><i class="ph ph-calculator"></i> نظام المحاسبة المتقدم</label>
+                        <input type="checkbox" id="feat-accounting" style="width:20px; height:20px; accent-color: var(--primary);">
+                    </div>
+                    <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                        <label style="margin:0;"><i class="ph ph-chart-bar"></i> التقارير المتقدمة</label>
+                        <input type="checkbox" id="feat-reports" style="width:20px; height:20px; accent-color: var(--primary);">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="closeFeaturesModal()">إلغاء</button>
+                        <button type="submit" class="btn btn-primary btn-glow">
+                            <i class="ph ph-floppy-disk"></i> حفظ التغييرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remote Support Modal -->
+    <div id="support-modal" class="modal-overlay">
+        <div class="modal-box glass-panel slide-up" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="ph ph-headset"></i> مركز الدعم الفني عن بعد</h3>
+                <button class="btn-icon close-modal" onclick="closeSupportModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary mb-4">أرسل طلب الدعم الفني للعيادة. بمجرد موافقتهم، ستتمكن من إرسال أوامر تشخيصية لمعالجة نظامهم عن بعد.</p>
+                <button class="btn btn-primary w-full" onclick="initiateRemoteSupport()">
+                    <i class="ph ph-paper-plane-right"></i> إرسال طلب الوصول للعيادة
+                </button>
+                
+                <div id="support-console" class="mt-4" style="display:none; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px;">
+                    <h4 style="color: var(--success); margin-bottom: 10px;"><i class="ph ph-check-circle"></i> الاتصال متصل بالعيادة!</h4>
+                    <div class="row-grid">
+                        <button class="btn btn-outline btn-small" onclick="sendRemoteCommand('clear_cache')">مسح الكاش</button>
+                        <button class="btn btn-outline btn-small" onclick="sendRemoteCommand('restart_app')">إعادة تشغيل النظام لديهم</button>
+                        <button class="btn btn-outline btn-small" onclick="sendRemoteCommand('sync_db')">فرض مزامنة البيانات</button>
+                    </div>
+                    <textarea id="remote-logs" readonly rows="6" style="width:100%; margin-top: 15px; background: black; color: #00ff00; border: none; padding: 10px; font-family: monospace; font-size: 12px;" placeholder="انتظار السجلات (Logs) من العيادة..."></textarea>
                 </div>
             </div>
         </div>
